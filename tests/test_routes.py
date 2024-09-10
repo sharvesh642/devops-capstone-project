@@ -135,3 +135,36 @@ class TestAccountService(TestCase):
     data = resp.get_json()
     self.assertEqual(data["name"], account.name)
 
+    def test_get_account_list(self):
+    """It should Get a list of Accounts"""
+    self._create_accounts(5)  # Create 5 accounts for testing
+    resp = self.client.get(BASE_URL)  # GET request to the API endpoint
+    self.assertEqual(resp.status_code, status.HTTP_200_OK)  # Check for HTTP 200
+    data = resp.get_json()
+    self.assertEqual(len(data), 5)  # Ensure there are 5 accounts
+
+
+    def test_update_account(self):
+    """It should Update an existing Account"""
+    test_account = AccountFactory()
+    resp = self.client.post(BASE_URL, json=test_account.serialize())
+    self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+    
+    new_account = resp.get_json()
+    new_account["name"] = "Updated Name"
+    resp = self.client.put(f"{BASE_URL}/{new_account['id']}", json=new_account)
+    self.assertEqual(resp.status_code, status.HTTP_200_OK)
+    
+    updated_account = resp.get_json()
+    self.assertEqual(updated_account["name"], "Updated Name")
+
+    def test_delete_account(self):
+    """It should Delete an Account"""
+    account = self._create_accounts(1)[0]
+    resp = self.client.delete(f"{BASE_URL}/{account.id}")
+    self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+    
+
+
+
